@@ -1,0 +1,59 @@
+.viewer-container {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f4f4f4;
+  }
+  
+  .controls {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1; /* Ensure controls are above the 3D viewer */
+  }
+  
+  .controls select,
+  .controls button {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+  }
+  
+  .controls select {
+    background-color: #ffffff;
+    cursor: pointer;
+  }
+  
+  .controls select:hover {
+    border-color: #007bff;
+  }
+  
+  .controls button {
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+    border: none;
+  }
+  
+  .controls button:hover {
+    background-color: #0056b3;
+  }
+  
+  .canvas-container {
+    flex: 1;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Optional: Add some spacing and alignment for the 3D viewer */
+  .canvas-container canvas {
+    width: 100%;
+    height: 100%;
+  }

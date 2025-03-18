@@ -1,0 +1,55 @@
+.texture-dropdown-container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .texture-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .texture-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .arrow {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+  }
+  
+  .arrow.open {
+    transform: rotate(180deg);
+  }
+  
+  .texture-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    margin-top: 5px;
+    min-width: 150px;
+    overflow: hidden;
+  }
+  
+  .texture-dropdown .texture-item {
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .texture-dropdown .texture-item:hover {
+    background-color: #f1f1f1;
+  }

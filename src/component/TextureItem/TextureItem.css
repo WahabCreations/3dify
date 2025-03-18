@@ -1,0 +1,36 @@
+.texture-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  margin: 5px 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: grab;
+  transition: all 0.3s ease;
+}
+
+.texture-item:hover {
+  background-color: #f9f9f9;
+  border-color: #007bff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.texture-item.dragging {
+  opacity: 0.5;
+  background-color: #e9ecef;
+  border-color: #007bff;
+}
+
+.texture-preview {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  margin-right: 10px;
+  object-fit: cover;
+}
+
+.texture-label {
+  font-size: 14px;
+  color: #333;
+}
