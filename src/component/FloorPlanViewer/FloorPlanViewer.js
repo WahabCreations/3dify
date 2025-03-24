@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { useDrop } from "react-dnd";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Grid, Bounds, CameraControls } from "@react-three/drei";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader"; // Correct import
-import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader"; // Correct import
-import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader"; // Correct import
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import * as THREE from "three";
 import { EffectComposer, SSAO } from "@react-three/postprocessing";
 import { ErrorBoundary } from "react-error-boundary";
 
+// FloorPlanViewer Component
 const FloorPlanViewer = ({ selectedTexture }) => {
   const [floorPlan, setFloorPlan] = useState(null);
   const controlsRef = useRef();
@@ -16,8 +16,6 @@ const FloorPlanViewer = ({ selectedTexture }) => {
   // Load Floorplan Model
   useEffect(() => {
     const gltfLoader = new GLTFLoader();
-    const fbxLoader = new FBXLoader();
-    const objLoader = new OBJLoader();
 
     const loadModel = (path) => {
       gltfLoader.load(
@@ -26,12 +24,6 @@ const FloorPlanViewer = ({ selectedTexture }) => {
           console.log("GLB file loaded successfully:", gltf);
           const object = gltf.scene;
           object.scale.set(1, 1, 1);
-
-          const bbox = new THREE.Box3().setFromObject(object);
-          const center = bbox.getCenter(new THREE.Vector3());
-          const size = bbox.getSize(new THREE.Vector3());
-
-          object.position.sub(center);
 
           object.traverse((child) => {
             if (child.isMesh) {
@@ -62,31 +54,7 @@ const FloorPlanViewer = ({ selectedTexture }) => {
         },
         undefined,
         (error) => {
-          console.error("Error loading GLB file, trying FBX:", error);
-          fbxLoader.load(
-            path,
-            (fbx) => {
-              console.log("FBX file loaded successfully:", fbx);
-              const object = fbx;
-              // Handle the loaded FBX file
-            },
-            undefined,
-            (error) => {
-              console.error("Error loading FBX file, trying OBJ:", error);
-              objLoader.load(
-                path,
-                (obj) => {
-                  console.log("OBJ file loaded successfully:", obj);
-                  const object = obj;
-                  // Handle the loaded OBJ file
-                },
-                undefined,
-                (error) => {
-                  console.error("Error loading OBJ file:", error);
-                }
-              );
-            }
-          );
+          console.error("Error loading GLB file:", error);
         }
       );
     };
@@ -116,31 +84,50 @@ const FloorPlanViewer = ({ selectedTexture }) => {
     }
   }, [floorPlan]);
 
+  // Drop functionality for floor plan (apply texture on drop)
+  const [{ isOver }, drop] = useDrop({
+    accept: "TEXTURE",
+    drop: (item) => {
+      if (item.texture) {
+        // Apply the dropped texture to the 3D model
+        console.log("Texture dropped:", item.texture);
+        // Find the mesh and apply the texture to it
+        if (floorPlan) {
+          floorPlan.traverse((child) => {
+            if (child.isMesh) {
+              const texture = new THREE.TextureLoader().load(item.texture.path);
+              child.material.map = texture;
+              child.material.needsUpdate = true;
+            }
+          });
+        }
+      }
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+    }),
+  });
+
   return (
-    <div className="viewer-container">
+    <div
+      ref={drop} // Attach drop functionality to the floor plan container
+      style={{
+        border: isOver ? "2px dashed green" : "none", // Highlight the area when hovered
+      }}
+    >
       <ErrorBoundary fallback={<div>3D Viewer Error</div>}>
-        <Canvas
-          shadows
-          camera={{ fov: 45 }}
-          gl={{ antialias: true }}
-          ref={canvasRef} // Attach the ref to the canvas
-        >
+        <Canvas shadows camera={{ fov: 45 }} gl={{ antialias: true }} ref={canvasRef}>
           <CameraControls ref={controlsRef} makeDefault />
           <OrbitControls enableDamping dampingFactor={0.05} minDistance={5} maxDistance={50} makeDefault />
-
           <ambientLight intensity={0.5} />
           <directionalLight position={[10, 10, 10]} intensity={1.2} castShadow shadow-mapSize={[2048, 2048]} />
-
           <Grid args={[10, 10]} cellColor="#cccccc" sectionColor="#eeeeee" position={[0, -0.01, 0]} />
-
           <Bounds fit clip observe margin={1.2}>
             <group position={[0, 0, 0]}>{floorPlan && <primitive object={floorPlan} />}</group>
           </Bounds>
-
           <EffectComposer>
             <SSAO radius={0.4} intensity={50} luminanceInfluence={0.4} color="red" />
           </EffectComposer>
-
           <axesHelper args={[5]} />
         </Canvas>
       </ErrorBoundary>

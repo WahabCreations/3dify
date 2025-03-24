@@ -2,7 +2,7 @@ import React from "react";
 import { useDrag } from "react-dnd";
 import "./TextureItem.css";
 
-const TextureItem = ({ texture }) => {
+const TextureItem = ({ texture, onClick }) => {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: "TEXTURE",
     item: { texture },
@@ -12,9 +12,17 @@ const TextureItem = ({ texture }) => {
   }));
 
   return (
-    <div ref={drag} className={`texture-item ${isDragging ? "dragging" : ""}`}>
-      <img src={texture.path} alt={texture.name} className="texture-preview" />
-      <span className="texture-label">{texture.name}</span>
+    <div
+      ref={drag}
+      className={`texture-item ${isDragging ? "dragging" : ""}`}
+      onClick={() => onClick(texture)} // Set texture on click
+      style={{
+        opacity: isDragging ? 0.5 : 1,
+        cursor: "pointer",
+      }}
+    >
+      <div className="texture-image" style={{ backgroundImage: `url(${texture.path})` }} />
+      <span className="texture-name">{texture.name}</span>
     </div>
   );
 };

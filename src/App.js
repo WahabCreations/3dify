@@ -1,64 +1,51 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import FloorPlanViewer from "./component/FloorPlanViewer/FloorPlanViewer";
-import textures from "../src/component/textures";
-import html2canvas from "html2canvas"; // Import html2canvas
-import "./App.css";
+import textures from "../src/component/textures"; // Import textures
+import FloorPlanViewer from "../src/component/FloorPlanViewer/FloorPlanViewer"; // Import your 3D viewer component
+import TextureItem from "../src/component/TextureItem/TextureItem"; // Import TextureItem component
+import "../src/App.css"; // Make sure styles are in this file
 
+// Main App component
 const App = () => {
-  const [selectedTexture, setSelectedTexture] = useState(null);
-  const floorPlanRef = useRef(null); // Ref to the floor plan container
+  const [selectedTexture, setSelectedTexture] = useState(null); // State to store selected texture
+  const [isDropdownOpen, setDropdownOpen] = useState(false); // State to control the dropdown visibility
 
-  const handleTextureChange = (event) => {
-    const selectedPath = event.target.value;
-    const selectedTexture = textures.find((texture) => texture.path === selectedPath);
-    setSelectedTexture(selectedTexture);
-  };
-
-  const handleExport = () => {
-    if (floorPlanRef.current) {
-      // Capture the floor plan container
-      html2canvas(floorPlanRef.current).then((canvas) => {
-        // Convert the canvas to a data URL
-        const image = canvas.toDataURL("image/glb");
-
-        // Create a temporary link element
-        const link = document.createElement("a");
-        link.href = image;
-        link.download = "floorplan.glb"; // Set the file name
-        link.click(); // Trigger the download
-      });
-    } else {
-      console.error("Floor plan container not found.");
-    }
+  // Handle texture change when a texture item is clicked or dropped
+  const handleTextureChange = (texture) => {
+    setSelectedTexture(texture); // Update the selected texture
+    setDropdownOpen(false); // Close the dropdown after selecting the texture
   };
 
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="app-container">
         <h1>3D Floor Plan Editor</h1>
-        {/* Controls (Texture Dropdown and Export Button) */}
+        
+        {/* Controls (Texture Button and Export Button) */}
         <div className="controls-container">
           <div className="texture-controls">
-            <h3>Textures</h3>
-            <select onChange={handleTextureChange}>
-              <option value="">Select a texture</option>
-              {textures.map((texture, index) => (
-                <option key={index} value={texture.path}>
-                  {texture.name}
-                </option>
-              ))}
-            </select>
+            <button onClick={() => setDropdownOpen(!isDropdownOpen)} className="texture-button">
+              Textures
+            </button>
+            {isDropdownOpen && (
+              <div className="dropdown-menu">
+                {textures.map((texture, index) => (
+                  <TextureItem
+                    key={index}
+                    texture={texture}
+                    onClick={handleTextureChange} // Set texture on click
+                  />
+                ))}
+              </div>
+            )}
           </div>
-          <button onClick={handleExport} className="export-button">
-            Export
-          </button>
+          <button className="export-button">Export</button>
         </div>
 
         {/* 3D Model Viewer */}
-        <div className="floorplan-container" ref={floorPlanRef}>
-          <FloorPlanViewer selectedTexture={selectedTexture} />
+        <div style={{ flex: 1 }}>
+          <FloorPlanViewer selectedTexture={selectedTexture} /> {/* Pass selected texture to the viewer */}
         </div>
       </div>
     </DndProvider>
