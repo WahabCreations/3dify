@@ -8,10 +8,9 @@ import { EffectComposer, SSAO } from "@react-three/postprocessing";
 import { ErrorBoundary } from "react-error-boundary";
 
 // FloorPlanViewer Component
-const FloorPlanViewer = ({ selectedTexture }) => {
+const FloorPlanViewer = ({ selectedTexture, canvasRef }) => {
   const [floorPlan, setFloorPlan] = useState(null);
   const controlsRef = useRef();
-  const canvasRef = useRef(); // Ref to the Three.js canvas
 
   // Load Floorplan Model
   useEffect(() => {
@@ -59,7 +58,7 @@ const FloorPlanViewer = ({ selectedTexture }) => {
       );
     };
 
-    loadModel("/Model/plan1.glb"); // Adjust the path as needed
+    loadModel("/Model/plan1.obj"); // Adjust the path as needed
   }, [selectedTexture]);
 
   // Auto-fit camera to model
@@ -91,7 +90,6 @@ const FloorPlanViewer = ({ selectedTexture }) => {
       if (item.texture) {
         // Apply the dropped texture to the 3D model
         console.log("Texture dropped:", item.texture);
-        // Find the mesh and apply the texture to it
         if (floorPlan) {
           floorPlan.traverse((child) => {
             if (child.isMesh) {
@@ -112,11 +110,16 @@ const FloorPlanViewer = ({ selectedTexture }) => {
     <div
       ref={drop} // Attach drop functionality to the floor plan container
       style={{
-        border: isOver ? "2px dashed green" : "none", // Highlight the area when hovered
+        border: "none", // Highlight the area when hovered
       }}
     >
       <ErrorBoundary fallback={<div>3D Viewer Error</div>}>
-        <Canvas shadows camera={{ fov: 45 }} gl={{ antialias: true }} ref={canvasRef}>
+        <Canvas
+          ref={canvasRef} // Attach the canvasRef to the canvas
+          shadows
+          camera={{ fov: 45 }}
+          gl={{ antialias: true }}
+        >
           <CameraControls ref={controlsRef} makeDefault />
           <OrbitControls enableDamping dampingFactor={0.05} minDistance={5} maxDistance={50} makeDefault />
           <ambientLight intensity={0.5} />
